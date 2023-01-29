@@ -10,17 +10,20 @@ class TrAdvertParser():
 			return None
 
 		try:
-			type = self._parseAdvertType()
-			id = self._parseId(type)
-			titleTuple = self._parseTitleHref()
-			title = titleTuple[0]
-			link = titleTuple[1]
-			thumbnail = self._parseThumbnail()
-			description = self._parseDescription(type)
-
-			return Advert(id, type, title, link, thumbnail, description)
+			return self._getAdvert()
 		except:
 			return None
+
+	def _getAdvert(self):
+		type = self._parseAdvertType()
+		id = self._parseId(type)
+		titleTuple = self._parseTitleHref()
+		title = titleTuple[0]
+		link = titleTuple[1]
+		thumbnail = self._parseThumbnail()
+		description = self._parseDescription(type)
+
+		return Advert(id, type, title, link, thumbnail, description)
 
 	def _parseTitleHref(self):
 		titleHref = self._tr.find("a", {"class": "tytul"})
@@ -36,10 +39,7 @@ class TrAdvertParser():
 		return AdvertType.SELL
 
 	def _parseId(self, type):
-		tdIndice = 1
-		if type != AdvertType.SELL:
-			tdIndice = 2
-		return int(self._tr.find_all('td')[tdIndice].find_all('b')[1].get_text()) # first 'b' tag in first or second 'td' - depends on advert type
+		return int(self._tr.find("i").find_all("b")[1].get_text())
 
 	def _parseThumbnail(self):
 		maybeImg = self._tr.find('img')
@@ -48,10 +48,7 @@ class TrAdvertParser():
 		return ''
 
 	def _parseDescription(self, type):
-		tdIndice = 1
-		if type != AdvertType.SELL:
-			tdIndice = 2
-		return self._tr.find_all('td')[tdIndice].get_text()
+		return self._tr.find("a", {"class": "tytul"}).parent.get_text(" ", strip=True)
 
 class GieldaParser():
 	def __init__(self):
